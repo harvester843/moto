@@ -825,10 +825,11 @@ class OrganizationsBackend(BaseBackend):
         policy = self.get_policy_by_id(kwargs["PolicyId"])
         root_id_regex = utils.ROOT_ID_REGEX
         ou_id_regex = utils.OU_ID_REGEX
+        account_id_regex = utils.ACCOUNT_ID_REGEX
         target_id = kwargs["TargetId"]
 
         if re.match(root_id_regex, target_id) or re.match(ou_id_regex, target_id):
-            ou = next((ou for ou in self.ou if ou.id == kwargs["TargetId"]), None)
+            ou = next((ou for ou in self.ou if ou.id == target_id), None)
             if ou is not None:
                 if ou in ou.attached_policies:
                     ou.attached_policies.remove(policy)
@@ -838,14 +839,9 @@ class OrganizationsBackend(BaseBackend):
                     "OrganizationalUnitNotFoundException",
                     "You specified an organizational unit that doesn't exist.",
                 )
-        elif re.match(utils.ACCOUNT_ID_REGEX, kwargs["TargetId"]):
+        elif re.match(account_id_regex, target_id):
             account = next(
-                (
-                    account
-                    for account in self.accounts
-                    if account.id == kwargs["TargetId"]
-                ),
-                None,
+                (account for account in self.accounts if account.id == target_id), None,
             )
             if account is not None:
                 if account in account.attached_policies:
